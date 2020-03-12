@@ -872,3 +872,34 @@ class ModelManager:
         print(updatedWeek)
         print(datetime.now().strftime('%Y-wk%W'))
         return updatedWeek
+
+
+    def fetchCurrency(self, id='USDTWD'):
+        r = requests.get('https://tw.rter.info/capi.php')
+        currency = r.json()
+
+        currTime = datetime.now().strftime('%Y/%m/%d %H:%M')
+        currencyLst = []
+        for each in currency:
+            if each[0:3] == 'USD':
+                currencyLst.append(each)
+            else:
+                pass
+
+        currencyCodeDict = dict()
+
+        for line in currencyLst:
+            currencyCodeDict[line] = round(currency[line]['Exrate'], 3)
+
+        for each in currencyLst:
+            if id[0:3] == each[3:]:
+                USDfst3 = currencyCodeDict['USD' + str(id[0:3])]
+                for each in currencyLst:
+                    if id[3:] == each[3:]:
+                        USDlst3 = currencyCodeDict['USD' + str(id[3:])]
+                        currencyCode = [
+                            round((USDlst3 / USDfst3), 4),
+                            'Japen Time ' + str(currTime) + ' ' + str(id[0:3]) + ' vs ' + str(id[3:])
+                        ]
+
+        return currencyCode
